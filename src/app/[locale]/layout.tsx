@@ -10,6 +10,7 @@ import { fontVariablesClassName } from "@/lib/fonts";
 import "../globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env["APP_URL"] ?? "https://sekka.app"),
   title: {
     default: `${brandConfig.name.ar} (${brandConfig.name.en}) — ${brandConfig.tagline.ar}`,
     template: `%s | ${brandConfig.name.ar}`,

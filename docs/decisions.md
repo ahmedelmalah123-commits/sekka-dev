@@ -46,5 +46,19 @@
 | Sec 4.1 | Commercial license of fonts (`IBM Plex Sans Arabic`, `Readex Pro`, `IBM Plex Mono`) | **Resolved (W0)** | All three fonts are published under the **SIL Open Font License 1.1** on Google Fonts (permits free commercial embedding & self-hosting via `next/font/google`). |
 | Sec 2.1 | Domain (`.com` / `.com.eg`), Social handles, Egyptian Trademark search, 10-person pronunciation test | **Open (Owner)** | Requires external trademark/domain checks and user interviews. |
 | Sec 7.7 / 17 | Privacy Policy, Terms, cross-border transfer (Egyptian PDPL Law 151/2020) | **Open (Legal)** | Placeholder pages in W1 clearly marked `"مسودة — بانتظار المراجعة القانونية"`. |
-| Sec 12.8 | PostHog consent vs cookieless/memory-only mode (`persistence: 'memory'`) under PDPL Law 151/2020 | **Open (Legal / W1)** | To be evaluated by legal counsel; W1 defaults to consent-gated analytics + server-side DB waitlist counts. |
-| Sec 12.7 | OG Image dynamic generation Arabic letter shaping | **Pending (W1)** | Will implement and visually inspect generated PNG output in W1. |
+| Sec 12.8 | PostHog consent vs cookieless/memory-only mode (`persistence: 'memory'`) under PDPL Law 151/2020 | **Open (Legal / W1)** | To be evaluated by legal counsel; W1 defaults to consent-gated analytics (`ConsentBanner` + dynamic `import('posthog-js')`) + server-side DB waitlist counts (`/api/metrics/waitlist-count`). |
+| Sec 12.7 | OG Image dynamic generation Arabic letter shaping | **Resolved (W1)** | Verified `next/og` Satori fails on `IBM Plex Sans Arabic` (`Error: lookupType: 5 - substFormat: 3 is not yet supported`). Switched to a pre-rendered static `src/app/[locale]/opengraph-image.png` (1200×630) rendered via Chromium with `IBM Plex Sans Arabic` + `Readex Pro` + `IBM Plex Mono`, visually verified for Arabic shaping and diacritics (`سِكّة`). |
+
+---
+
+## W1 Public Site & Waitlist Decisions
+
+### 8. Upstash Redis Rate Limiter with No In-Memory Fallback
+- **Decision:** `src/server/security/rate-limit.ts` requires `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` and throws explicitly if missing, with zero in-memory fallback (per owner directive).
+
+### 9. Lightweight Native Controls on Public Lead/Contact Forms (`<= 150 KB` JS Budget)
+- **Finding:** Bundling `posthog-js`, `react-hook-form`, `zod` (client), and `@radix-ui/react-select` on `/waitlist` pushed first-load JS transfer size to `376,976` bytes (`> 150 KB` budget).
+- **Decision:**
+  - `src/lib/analytics.ts` dynamically imports `posthog-js` only when `NEXT_PUBLIC_POSTHOG_KEY` is configured.
+  - `LeadForm` and `ContactForm` use native `<select>` and `<input type="checkbox">` with lightweight client validation while keeping strict Zod validation on `/api/leads` and `/api/contact`.
+  - Home (`/`) meets `<= 150 KB` (`149,369` bytes); `/waitlist` interactive form route is `187,769` bytes (`<= 200 KB` in `lighthouserc.json`).
