@@ -1,0 +1,109 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-grid-line: var(--grid-line);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-contrast: var(--primary-contrast);
+  --color-terracotta-decor: var(--terracotta-decor);
+  --color-highlight: var(--highlight);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  --font-sans: var(--font-ibm-plex-sans-arabic), system-ui, sans-serif;
+  --font-display: var(--font-readex-pro), var(--font-ibm-plex-sans-arabic), system-ui, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+}
+
+@layer base {
+  html {
+    background-color: var(--bg);
+    color: var(--text);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  em,
+  i {
+    font-style: normal;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes sekka-draw-line {
+  from {
+    stroke-dashoffset: var(--dash-length, 400);
+    opacity: 0.35;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.sekka-construction-stroke {
+  stroke-dasharray: var(--dash-length, 400);
+  stroke-dashoffset: 0;
+  animation: sekka-draw-line 1400ms var(--motion-ease) both;
+}
+
+.sekka-construction-stroke-delayed {
+  stroke-dasharray: var(--dash-length, 400);
+  stroke-dashoffset: 0;
+  animation: sekka-draw-line 1600ms var(--motion-ease) 220ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .sekka-construction-stroke,
+  .sekka-construction-stroke-delayed {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}

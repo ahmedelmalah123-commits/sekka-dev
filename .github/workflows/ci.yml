@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, w0-foundation, w1-public-waitlist]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, Typecheck & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+
+  rls-tests:
+    name: Supabase Local RLS Isolation Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start local Supabase and export env
+        run: |
+          supabase start
+          supabase db reset
+          supabase status -o env >> "$GITHUB_ENV"
+      - name: Map Supabase env variables for RLS tests
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+      - run: pnpm test:rls
+      - if: always()
+        run: supabase stop
+
+  build-e2e-lighthouse:
+    name: Build, Playwright E2E/A11y & Lighthouse CI
+    runs-on: ubuntu-latest
+    needs: [quality]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Build Next.js app
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: example-anon-key
+        run: pnpm build
+      - name: Verify /styleguide returns 404 in production mode
+        env:
+          NODE_ENV: production
+          VERCEL_ENV: production
+        run: |
+          pnpm start --port 3010 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID 2>/dev/null || true" EXIT
+          npx wait-on http://127.0.0.1:3010 || sleep 5
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3010/styleguide)
+          echo "/styleguide status in production mode: $STATUS"
+          test "$STATUS" = "404"
+      - name: Run Playwright E2E & axe checks
+        env:
+          ENABLE_STYLEGUIDE: "true"
+        run: pnpm test:e2e
+      - name: Run Lighthouse CI
+        run: pnpm lhci

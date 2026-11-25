@@ -1,0 +1,61 @@
+/*
+ * Tile and Terracotta design tokens (Light default + Dark theme).
+ * Keep exact values synchronized with src/config/brand.config.ts.
+ * Contrast pairs are verified in tests/unit/design-tokens.test.ts.
+ */
+
+:root {
+  --bg: #F4EEE2;
+  --surface: #FBF8F1;
+  --surface-muted: #EAE2D2;
+  --border: #D8D0BE;
+  --border-strong: #6F827E;
+  --grid-line: #B9C9C3;
+  --text: #0E3B3A;
+  --text-muted: #4F6563;
+  --primary: #B5472F;
+  --primary-hover: #9A3B26;
+  --primary-contrast: #FFFFFF;
+  --terracotta-decor: #C8553D;
+  --highlight: #D8B98A;
+  --success: #1F7A44;
+  --warning: #8A5A00;
+  --danger: #B3261E;
+  --info: #245C8A;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+
+  --container-marketing: 1200px;
+  --container-app: 1440px;
+  --container-reading: 720px;
+
+  --motion-micro: 150ms;
+  --motion-layout: 250ms;
+  --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0A1C1B;
+  --surface: #102726;
+  --surface-muted: #163230;
+  --border: #274543;
+  --border-strong: #6E908B;
+  --grid-line: #1E3A38;
+  --text: #F1EADB;
+  --text-muted: #A9B8B3;
+  --primary: #E8795E;
+  --primary-hover: #F08C72;
+  --primary-contrast: #0A1C1B;
+  --terracotta-decor: #C8553D;
+  --highlight: #E2C79A;
+  --success: #5CC28A;
+  --warning: #E0A84A;
+  --danger: #F07A70;
+  --info: #7FB2E0;
+
+  color-scheme: dark;
+}

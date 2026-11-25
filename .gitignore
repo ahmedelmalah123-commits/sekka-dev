@@ -1,0 +1,32 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# Next.js / Build
+/.next/
+/out/
+/build
+/dist
+
+# Testing & Lighthouse
+/playwright-report/
+/test-results/
+/.lighthouseci/
+/coverage
+
+# Env files (NEVER commit secrets)
+.env
+.env*.local
+
+# Vercel & Supabase local temp
+/.vercel
+/supabase/.temp
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+next-env.d.ts
+AGENTS.md
+CLAUDE.md
